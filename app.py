@@ -3,7 +3,7 @@ from langchain_ibm import WatsonxLLM
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
 from datetime import datetime
 from fpdf import FPDF
-import requests  # For OpenWeatherMap API
+import requests  # For weather API
 
 # Language translations
 LANGUAGES = {
@@ -63,7 +63,7 @@ LANGUAGES = {
 # Page config
 st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_icon="🌆")
 
-# Custom CSS - Urban Blue Theme (with enhanced readability)
+# Custom CSS - Urban Blue Theme
 st.markdown("""
     <style>
         body { background-color: #e8f4ff; font-family: 'Segoe UI', sans-serif; }
@@ -144,14 +144,14 @@ try:
                 GenParams.STOP_SEQUENCES: ["Human:", "Observation"],
             },
         )
-except KeyError:
-    st.warning("⚠️ Watsonx credentials missing.")
+except KeyError as e:
+    st.warning(f"⚠️ Missing Watsonx credential: {str(e)}")
     st.stop()
 except Exception as e:
     st.error(f"🚨 Error initializing LLM: {str(e)}")
     st.stop()
 
-# Function to export data as PDF
+# Function to export data as PDF including user profile
 def export_city_report():
     pdf = FPDF()
     pdf.add_page()
@@ -159,7 +159,7 @@ def export_city_report():
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, txt="SmartCityAI - City Analysis Report", ln=True, align='C')
     pdf.ln(10)
-    if st.session_state.profile_data:
+    if "profile_data" in st.session_state and st.session_state.profile_data:
         pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="User Information", ln=True)
         pdf.set_font("Arial", '', 12)
@@ -169,8 +169,8 @@ def export_city_report():
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Recent City Metrics", ln=True)
     pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 10, txt="Avg Traffic Delay: 12 mins")
-    pdf.cell(0, 10, txt="Avg CO2 Level: 410 ppm")
+    pdf.cell(0, 10, txt="Avg Traffic Delay: 12 mins", ln=True)
+    pdf.cell(0, 10, txt="Avg CO2 Level: 410 ppm", ln=True)
     pdf.output("city_report.pdf")
     return open("city_report.pdf", "rb").read()
 
@@ -233,17 +233,113 @@ def get_weather(city, api_key):
     response = requests.get(complete_url).json()
     if response.get("cod") != 200:
         return None
+    main_data = response["main"]
+    weather_data = response["weather"][0]
     return {
-        "temp": response["main"]["temp"],
-        "feels_like": response["main"]["feels_like"],
-        "humidity": response["main"]["humidity"],
+        "city": city,
+        "temp": main_data["temp"],
+        "feels_like": main_data["feels_like"],
+        "humidity": main_data["humidity"],
         "wind_speed": response["wind"]["speed"],
-        "description": response["weather"][0]["description"].capitalize(),
-        "city": response["name"]
+        "description": weather_data["description"].capitalize(),
     }
 
-# ------------------------------ WEATHER MODULE ------------------------------
-if st.session_state.current_section == "weather":
+# ------------------------------ SETTINGS ------------------------------
+if st.session_state.current_section == "settings":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown(f'<h2>⚙️ {LANGUAGES[lang]["settings"]}</h2>', unsafe_allow_html=True)
+    language = st.selectbox("Language", options=["en", "es", "fr"], format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}[x])
+    theme = st.selectbox("Theme", ["Light"])
+    font_size = st.slider("Font Size", 12, 24)
+    if st.button(LANGUAGES[lang]["save_profile"]):
+        st.session_state.language = language
+        st.success("Preferences updated!")
+    st.markdown('</div>')
+
+# ------------------------------ USER PROFILE ------------------------------
+elif st.session_state.current_section == "profile":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
+    name = st.text_input("Full Name")
+    role = st.selectbox("Role", ["Mayor", "Engineer", "Planner", "Analyst"])
+    department = st.text_input("Department")
+    location = st.text_input("City / District")
+    if st.button("Save Profile"):
+        if name and role and department and location:
+            save_profile(name, role, department, location)
+        else:
+            st.error("❌ Please fill in all fields.")
+    if st.session_state.profile_complete:
+        st.markdown('<br>', unsafe_allow_html=True)
+        if st.button("🔄 Reset Profile"):
+            reset_profile()
+    st.markdown('</div>')
+
+# If profile not completed, stop further access
+elif not st.session_state.profile_complete:
+    st.info("ℹ️ Please complete your profile before continuing.")
+    if st.button("Go to Profile"):
+        st.session_state.current_section = "profile"
+    st.stop()
+
+# ------------------------------ CHATBOT ------------------------------
+elif st.session_state.current_section == "chat":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🤖 AI Chatbot</h2>', unsafe_allow_html=True)
+    for role, content in st.session_state.messages:
+        bubble_class = "user-bubble" if role == "user" else "bot-bubble"
+        st.markdown(f'<div class="{bubble_class}"><b>{role.capitalize()}:</b> {content}</div>', unsafe_allow_html=True)
+    with st.form(key='chat_form', clear_on_submit=True):
+        user_input = st.text_input("Your question:", placeholder="Type something like 'What's the traffic today?'...")
+        submit_button = st.form_submit_button(label="Send")
+    if submit_button and user_input:
+        st.session_state.messages.append(("user", user_input))
+        with st.spinner("Thinking..."):
+            try:
+                llm = get_llm("chat")
+                response = llm.invoke(user_input)
+                st.session_state.messages.append(("assistant", response))
+                st.rerun()
+            except Exception as e:
+                st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
+                st.rerun()
+    st.markdown('</div>')
+
+# ------------------------------ TRAFFIC MONITOR ------------------------------
+elif st.session_state.current_section == "traffic":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🚦 Traffic Monitor</h2>', unsafe_allow_html=True)
+    query = st.text_area("Describe your traffic-related issue or question:")
+    if st.button("Get Advice"):
+        llm = get_llm("traffic")
+        res = llm.invoke(query)
+        st.markdown(f"🧠 **AI Response:**\n{res}")
+    st.markdown('</div>')
+
+# ------------------------------ ENERGY TRACKER ------------------------------
+elif st.session_state.current_section == "energy":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
+    query = st.text_input("Ask about power usage or grid issues:")
+    if st.button("Get Suggestions"):
+        llm = get_llm("energy")
+        res = llm.invoke(query)
+        st.markdown(f"💡 **Suggestions:**\n{res}")
+    st.markdown('</div>')
+
+# ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
+elif st.session_state.current_section == "environment":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🌍 Environmental Insights</h2>', unsafe_allow_html=True)
+    query = st.text_area("Ask about pollution, air quality, or sustainability:")
+    if st.button("Get Insight"):
+        llm = get_llm("environment")
+        res = llm.invoke(query)
+        st.markdown(f"🌱 **Analysis:**\n{res}")
+    st.markdown('</div>')
+
+# ------------------------------ WEATHER FORECAST ------------------------------
+elif st.session_state.current_section == "weather":
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<h2>🌦️ Weather Forecast</h2>', unsafe_allow_html=True)
     city = st.text_input("Enter City Name")
@@ -261,38 +357,40 @@ if st.session_state.current_section == "weather":
                         **Description:** {weather_data['description']}
                     """)
                 else:
-                    st.error("❌ Unable to fetch weather data. Please check city name or API key.")
+                    st.error("❌ Unable to fetch weather data. Check city name or API key.")
             except Exception as e:
                 st.error(f"🚨 Error fetching weather: {str(e)}")
         else:
             st.warning("Please enter a city name.")
     st.markdown('</div>')
-elif st.session_state.current_section == "settings":
-    # [Your settings section remains unchanged]
-    pass
-elif st.session_state.current_section == "profile":
-    # [Your profile section remains unchanged]
-    pass
-elif not st.session_state.profile_complete:
-    st.info("ℹ️ Please complete your profile before continuing.")
-    if st.button("Go to Profile"):
-        st.session_state.current_section = "profile"
-    st.stop()
-elif st.session_state.current_section == "chat":
-    # [Chatbot section remains unchanged]
-    pass
-elif st.session_state.current_section == "traffic":
-    # [Traffic section remains unchanged]
-    pass
-elif st.session_state.current_section == "energy":
-    # [Energy section remains unchanged]
-    pass
-elif st.session_state.current_section == "environment":
-    # [Environment section remains unchanged]
-    pass
+
+# ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
-    # [Reports section remains unchanged]
-    pass
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown(f'<h2>📊 {LANGUAGES[lang]["reports"]}</h2>', unsafe_allow_html=True)
+    traffic_delay = st.slider("Avg Daily Traffic Delay (min)", 0, 60, step=1)
+    co2_level = st.slider("CO2 Level (ppm)", 300, 600, step=5)
+    energy_use = st.slider("Energy Use (kWh/day)", 50, 500, step=10)
+    waste_ton = st.slider("Waste Collected (ton)", 0, 100, step=1)
+    if st.button("Save Data"):
+        st.session_state.city_data.update({
+            "traffic_delay": traffic_delay,
+            "co2_level": co2_level,
+            "energy_use": energy_use,
+            "waste_ton": waste_ton
+        })
+        st.success("Data saved successfully.")
+    if st.button(LANGUAGES[lang]["generate_ai_report"]):
+        summary = get_llm("reports").invoke(f"Give a short city analysis based on: {st.session_state.city_data}")
+        st.markdown(f"🧠 **AI Analysis:**\n{summary}")
+    if st.session_state.profile_complete and st.session_state.city_data:
+        st.download_button(
+            label=LANGUAGES[lang]["export_pdf"],
+            data=export_city_report(),
+            file_name="city_report.pdf",
+            mime="application/pdf"
+        )
+    st.markdown('</div>')
 
 # Footer
 st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
