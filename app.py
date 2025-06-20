@@ -62,7 +62,7 @@ st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_i
 # Custom CSS - Urban Blue Theme
 st.markdown("""
     <style>
-        body { background-color: #e8f4ff; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: white; font-family: 'Segoe UI', sans-serif; }
         .main { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .card { background-color: #ffffff; padding: 25px; margin: 20px 0; border-left: 6px solid #3498db; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .navbar { display: flex; justify-content: center; gap: 20px; padding: 15px 0; background: linear-gradient(to right, #3498db, #2ecc71); border-radius: 10px; margin-bottom: 25px; }
