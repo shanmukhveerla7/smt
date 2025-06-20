@@ -1,4 +1,3 @@
-
 import streamlit as st
 from langchain_ibm import WatsonxLLM
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
@@ -74,9 +73,26 @@ st.markdown("""
         input, select, textarea { border-radius: 8px; border: 1px solid #ccc; padding: 10px; width: 100%; font-size: 14px; }
         button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; }
         button:hover { background-color: #2980b9; }
-        .user-bubble, .bot-bubble { padding: 10px 15px; border-radius: 12px; max-width: 70%; margin: 6px 0; font-size: 14px; }
-        .user-bubble { background-color: #d6ecf3; align-self: flex-end; }
-        .bot-bubble { background-color: #dff0d8; align-self: flex-start; }
+        .user-bubble {
+            background-color: #2c3e50; /* Darker blue */
+            color: white; /* White text for better contrast */
+            align-self: flex-end;
+            border-radius: 12px;
+            padding: 10px 15px;
+            max-width: 70%;
+            margin: 6px 0;
+            font-size: 14px;
+        }
+        .bot-bubble {
+            background-color: #ffffff; /* Light gray or white */
+            color: black; /* Black text for better contrast */
+            align-self: flex-start;
+            border-radius: 12px;
+            padding: 10px 15px;
+            max-width: 70%;
+            margin: 6px 0;
+            font-size: 14px;
+        }
         .chat-container { display: flex; flex-direction: column; gap: 10px; }
     </style>
 """, unsafe_allow_html=True)
@@ -137,24 +153,20 @@ def export_city_report():
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
-    
     pdf.cell(0, 10, txt="SmartCityAI - City Analysis Report", ln=True, align='C')
     pdf.ln(10)
-
     if "profile_data" in st.session_state and st.session_state.profile_data:
         pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="User Information", ln=True)
         pdf.set_font("Arial", '', 12)
         for key, value in st.session_state.profile_data.items():
             pdf.cell(0, 10, txt=f"{key.capitalize()}: {value}", ln=True)
-
     pdf.ln(10)
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Recent City Metrics", ln=True)
     pdf.set_font("Arial", '', 12)
     pdf.cell(0, 10, txt="Avg Traffic Delay: 12 mins", ln=True)
     pdf.cell(0, 10, txt="Avg CO2 Level: 410 ppm", ln=True)
-
     pdf.output("city_report.pdf")
     return open("city_report.pdf", "rb").read()
 
@@ -190,7 +202,6 @@ def render_navbar():
 lang = st.session_state.language
 st.markdown(f'<h1 style="text-align:center;">{LANGUAGES[lang]["title"]}</h1>', unsafe_allow_html=True)
 st.markdown(f'<p style="text-align:center; font-size:16px;">{LANGUAGES[lang]["subtitle"]}</p>', unsafe_allow_html=True)
-
 render_navbar()
 
 # Functions
