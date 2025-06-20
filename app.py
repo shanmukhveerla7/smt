@@ -395,3 +395,8 @@ st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["fo
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
     st.write("Session State:", st.session_state)
+
+try:
+    st.write("Testing OpenWeatherMap Key:", st.secrets["OPENWEATHER_APIKEY"][:5] + "*****")
+except KeyError:
+    st.error("🚨 OPENWEATHER_APIKEY not found in secrets.toml")
