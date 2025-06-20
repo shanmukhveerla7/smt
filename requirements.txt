@@ -3,3 +3,4 @@ langchain-ibm
 ibm-watsonx-ai
 ibm_watson_machine_learning
 fpdf
+requests
