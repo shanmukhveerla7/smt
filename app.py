@@ -3,18 +3,16 @@ from langchain_ibm import WatsonxLLM
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
 from datetime import datetime
 from fpdf import FPDF
-import requests  # For weather API
 
 # Language translations for smart city domain
 LANGUAGES = {
     "en": {
         "title": "🌆 Smart City Assistant",
-        "subtitle": "Ask about traffic, energy, environment, weather, and infrastructure.",
+        "subtitle": "Ask about traffic, energy, environment, and infrastructure.",
         "chat": "🤖 AI Chatbot",
         "traffic": "🚦 Traffic Monitor",
         "energy": "⚡ Energy Tracker",
         "environment": "🌍 Environmental Insights",
-        "weather": "🌦️ Weather Forecast",
         "reports": "📊 City Reports",
         "settings": "⚙️ Settings & Preferences",
         "footer": "© 2025 SmartCity Assistant | Built with ❤️ using Streamlit & Watsonx",
@@ -29,7 +27,6 @@ LANGUAGES = {
         "traffic": "🚦 Monitoreo del Tráfico",
         "energy": "⚡ Seguimiento Energético",
         "environment": "🌍 Información Ambiental",
-        "weather": "🌦️ Pronóstico del Tiempo",
         "reports": "📊 Informes de la Ciudad",
         "settings": "⚙️ Configuración y Preferencias",
         "footer": "© 2025 Asistente de Ciudad Inteligente | Hecho con ❤️ usando Streamlit & Watsonx",
@@ -44,7 +41,6 @@ LANGUAGES = {
         "traffic": "🚦 Surveillance du Trafic",
         "energy": "⚡ Suivi Énergétique",
         "environment": "🌍 Analyse Environnementale",
-        "weather": "🌦️ Météo",
         "reports": "📊 Rapports Urbains",
         "settings": "⚙️ Paramètres et Préférences",
         "footer": "© 2025 Assistant Ville Intelligent | Réalisé avec ❤️ en utilisant Streamlit & Watsonx",
@@ -169,29 +165,11 @@ def export_city_report():
     pdf.output("city_report.pdf")
     return open("city_report.pdf", "rb").read()
 
-# Fetch weather from OpenWeatherMap
-def get_weather(city, api_key):
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}q={city}&appid={api_key}&units=metric"
-    response = requests.get(complete_url).json()
-    if response.get("cod") != 200:
-        return None
-    main_data = response["main"]
-    weather_data = response["weather"][0]
-    return {
-        "city": city,
-        "temp": main_data["temp"],
-        "feels_like": main_data["feels_like"],
-        "humidity": main_data["humidity"],
-        "wind_speed": response["wind"]["speed"],
-        "description": weather_data["description"].capitalize(),
-    }
-
 # Navigation Bar
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         if st.button("챗", key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -205,12 +183,9 @@ def render_navbar():
         if st.button("🌍", key="btn_environment", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "environment"
     with col5:
-        if st.button("🌦️", key="btn_weather", use_container_width=True, disabled=not st.session_state.profile_complete):
-            st.session_state.current_section = "weather"
-    with col6:
         if st.button("🧾", key="btn_profile", use_container_width=True):
             st.session_state.current_section = "profile"
-    with col7:
+    with col6:
         if st.button("⚙️", key="btn_settings", use_container_width=True):
             st.session_state.current_section = "settings"
     st.markdown('</div>', unsafe_allow_html=True)
@@ -333,42 +308,16 @@ elif st.session_state.current_section == "environment":
         st.markdown(f"🌱 **Analysis:**\n{res}")
     st.markdown('</div>')
 
-# ------------------------------ WEATHER FORECAST ------------------------------
-elif st.session_state.current_section == "weather":
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<h2>🌦️ Weather Forecast</h2>', unsafe_allow_html=True)
-    city = st.text_input("Enter City Name")
-    if st.button("Get Weather"):
-        if city:
-            try:
-                weather = get_weather(city, st.secrets["OPENWEATHER_APIKEY"])
-                if weather:
-                    st.write(f"""
-                        **City:** {weather['city']}  
-                        **Temperature:** {weather['temp']}°C  
-                        **Feels Like:** {weather['feels_like']}°C  
-                        **Humidity:** {weather['humidity']}%  
-                        **Wind Speed:** {weather['wind_speed']} m/s  
-                        **Description:** {weather['description']}
-                    """)
-                else:
-                    st.error("❌ Unable to fetch weather data. Please check city name or API key.")
-            except KeyError:
-                st.error("🚨 OPENWEATHER_APIKEY missing from secrets.toml")
-            except Exception as e:
-                st.error(f"🚨 Error fetching weather: {str(e)}")
-        else:
-            st.warning("Please enter a city name.")
-    st.markdown('</div>')
-
 # ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown(f'<h2>📊 {LANGUAGES[lang]["reports"]}</h2>', unsafe_allow_html=True)
+    
     traffic_delay = st.slider("Avg Daily Traffic Delay (min)", 0, 60, step=1)
     co2_level = st.slider("CO2 Level (ppm)", 300, 600, step=5)
     energy_use = st.slider("Energy Use (kWh/day)", 50, 500, step=10)
     waste_ton = st.slider("Waste Collected (ton)", 0, 100, step=1)
+
     if st.button("Save Data"):
         st.session_state.city_data.update({
             "traffic_delay": traffic_delay,
@@ -377,16 +326,19 @@ elif st.session_state.current_section == "reports":
             "waste_ton": waste_ton
         })
         st.success("Data saved successfully.")
+
     if st.button(LANGUAGES[lang]["generate_ai_report"]):
         summary = get_llm("reports").invoke(f"Give a short city analysis based on: {st.session_state.city_data}")
         st.markdown(f"🧠 **AI Analysis:**\n{summary}")
-    if st.session_state.profile_complete and st.session_state.city_data:
+
+    if st.session_state.city_data:
         st.download_button(
             label=LANGUAGES[lang]["export_pdf"],
             data=export_city_report(),
             file_name="city_report.pdf",
             mime="application/pdf"
         )
+
     st.markdown('</div>')
 
 # Footer
@@ -395,8 +347,3 @@ st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["fo
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
     st.write("Session State:", st.session_state)
-
-try:
-    st.write("Testing OpenWeatherMap Key:", st.secrets["OPENWEATHER_APIKEY"][:5] + "*****")
-except KeyError:
-    st.error("🚨 OPENWEATHER_APIKEY not found in secrets.toml")
