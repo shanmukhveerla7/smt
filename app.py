@@ -439,7 +439,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('Grateful for your time exploring our assistant!!')
+    st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!')
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -469,7 +469,7 @@ elif st.session_state.current_section == "chat":
             except Exception as e:
                 st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
                 st.rerun()
-    st.markdown('Thank You!!')
+    st.markdown('We value your time and trust our AI assistant provided helpful guidance!!')
 
 # ------------------------------ TRAFFIC MONITOR ------------------------------
 elif st.session_state.current_section == "traffic":
@@ -480,7 +480,7 @@ elif st.session_state.current_section == "traffic":
         llm = get_llm("traffic")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('Thank You!!')
+    st.markdown('We value your time and trust our AI assistant provided helpful guidance!!')
 
 # ------------------------------ ENERGY TRACKER ------------------------------
 elif st.session_state.current_section == "energy":
@@ -491,7 +491,7 @@ elif st.session_state.current_section == "energy":
         llm = get_llm("energy")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('Thank You!!')
+    st.markdown('We value your time and trust our AI assistant provided helpful guidance!!')
 
 # ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
 elif st.session_state.current_section == "environment":
@@ -502,7 +502,7 @@ elif st.session_state.current_section == "environment":
         llm = get_llm("environment")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('Thank You!!')
+    st.markdown('We value your time and trust our AI assistant provided helpful guidance!!')
 
 # ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
@@ -534,7 +534,7 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
-    st.markdown('Thank You!!')
+    st.markdown('We value your time and trust our AI assistant provided helpful guidance!!')
 
 # Footer
 st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
