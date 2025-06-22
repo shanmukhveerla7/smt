@@ -383,7 +383,7 @@ def render_navbar():
     with col6:
         if st.button("⚙️", key="btn_settings", use_container_width=True):
             st.session_state.current_section = "settings"
-    st.markdown('About Assistant', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Header
 lang = st.session_state.language
