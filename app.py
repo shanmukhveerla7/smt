@@ -57,8 +57,9 @@ st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_i
 st.markdown("""
     <style>
         body {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
             font-family: 'Segoe UI', sans-serif;
+            color: #343a40;
         }
 
         .main {
@@ -67,26 +68,28 @@ st.markdown("""
             margin: auto;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
         }
 
         h1, h2, h3 {
             color: #2c3e50;
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 600;
+            margin-top: 10px;
         }
 
         label {
-            font-weight: normal;
-            color: #34495e;
+            font-weight: 500;
+            color: #495057;
             font-size: 14px;
         }
 
         input, select, textarea {
             border-radius: 6px;
-            border: 1px solid #ccc;
+            border: 1px solid #ced4da;
             padding: 10px;
             width: 100%;
+            font-size: 14px;
         }
 
         button {
@@ -97,6 +100,7 @@ st.markdown("""
             font-size: 14px;
             border-radius: 6px;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         button:hover {
@@ -112,6 +116,7 @@ st.markdown("""
             background: #ffffff;
             border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .nav-button {
@@ -139,7 +144,7 @@ st.markdown("""
 
         /* Dashboard Card Styles */
         .card-chat {
-            background-color: #ebf5fb;
+            background-color: #f3f9fb;
             padding: 20px;
             margin: 15px 0;
             border-left: 6px solid #2980b9;
@@ -148,16 +153,16 @@ st.markdown("""
         }
 
         .card-traffic {
-            background-color: #fff4f4;
+            background-color: #fff7f6;
             padding: 20px;
             margin: 15px 0;
-            border-left: 6px solid #e74c3c;
+            border-left: 6px solid #e67e22;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .card-energy {
-            background-color: #f0fbec;
+            background-color: #f2fbf6;
             padding: 20px;
             margin: 15px 0;
             border-left: 6px solid #27ae60;
@@ -166,16 +171,16 @@ st.markdown("""
         }
 
         .card-environment {
-            background-color: #e8f4ff;
+            background-color: #f0f7ff;
             padding: 20px;
             margin: 15px 0;
-            border-left: 6px solid #2980b9;
+            border-left: 6px solid #3498db;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .card-reports {
-            background-color: #fffde7;
+            background-color: #fffbe6;
             padding: 20px;
             margin: 15px 0;
             border-left: 6px solid #f39c12;
@@ -184,7 +189,7 @@ st.markdown("""
         }
 
         .card-settings {
-            background-color: #f2f2f2;
+            background-color: #f8f9fa;
             padding: 20px;
             margin: 15px 0;
             border-left: 6px solid #999;
@@ -223,7 +228,7 @@ st.markdown("""
         .footer {
             text-align: center;
             font-size: 14px;
-            color: #777;
+            color: #666;
             margin-top: 40px;
             padding: 20px;
             border-top: 1px solid #eee;
