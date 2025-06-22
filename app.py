@@ -439,7 +439,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!')
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
