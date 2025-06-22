@@ -4,7 +4,7 @@ from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenP
 from datetime import datetime
 from fpdf import FPDF
 
-# Language translations for smart city domain
+# Language translations
 LANGUAGES = {
     "en": {
         "title": "🌆 Smart City Assistant",
@@ -53,20 +53,117 @@ LANGUAGES = {
 # Page config
 st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_icon="🌆")
 
-# Custom CSS - Urban Blue Theme
+# Custom CSS - Modern Urban Theme
 st.markdown("""
     <style>
-        body { background-color: #e8f4ff; font-family: 'Segoe UI', sans-serif; }
-        .main { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .card { background-color: #ffffff; padding: 25px; margin: 20px 0; border-left: 6px solid #3498db; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .navbar { display: flex; justify-content: center; gap: 20px; padding: 15px 0; background: linear-gradient(to right, #3498db, #2ecc71); border-radius: 10px; margin-bottom: 25px; }
-        .nav-button { background-color: #ffffff; color: #3498db; border: none; width: 50px; height: 50px; font-size: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
-        .nav-button:hover { background-color: #def8ff; transform: scale(1.1); }
-        h1, h2, h3 { color: #2c3e50; }
-        label { font-weight: bold; color: #34495e; }
-        input, select, textarea { border-radius: 8px; border: 1px solid #ccc; padding: 10px; width: 100%; font-size: 14px; }
-        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; }
-        button:hover { background-color: #2980b9; }
+        /* General Styles */
+        body {
+            background-color: #f9fbfd;
+            font-family: 'Segoe UI', sans-serif;
+            color: #2c3e50;
+        }
+
+        .main {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input, select, textarea {
+            border-radius: 10px;
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            width: 100%;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Card Style */
+        .card {
+            background-color: #ffffff;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 6px solid #3498db;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px 0;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-button {
+            background-color: #ffffff;
+            color: #3498db;
+            border: none;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:hover {
+            background-color: #def8ff;
+            transform: scale(1.1);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Chat Bubble Style */
         .user-bubble {
             background-color: #2c3e50;
             color: white;
@@ -77,8 +174,9 @@ st.markdown("""
             margin: 6px 0;
             font-size: 14px;
         }
+
         .bot-bubble {
-            background-color: #ffffff;
+            background-color: #ecf0f1;
             color: black;
             align-self: flex-start;
             border-radius: 12px;
@@ -87,7 +185,39 @@ st.markdown("""
             margin: 6px 0;
             font-size: 14px;
         }
-        .chat-container { display: flex; flex-direction: column; gap: 10px; }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 40px;
+            color: #7f8c8d;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+            }
+            .nav-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .main {
+                padding: 20px;
+                border-radius: 10px;
+            }
+        }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -169,7 +299,7 @@ def export_city_report():
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    col1, col2, col3, col4, col5, col6 = st.columns(6)  # Reduced from 7 (weather removed)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         if st.button("챗", key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -243,7 +373,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('Thank You!!')  # End of card div
+    st.markdown('</div>')
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -338,10 +468,11 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
+
     st.markdown('</div>')
 
 # Footer
-st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
+st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
 
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
