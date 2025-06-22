@@ -242,7 +242,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('</div>')  # Correctly placed at the end of the card
+    st.write("Thanks")  # Replaced </div> with "Thanks"
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -346,3 +346,8 @@ st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["fo
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
     st.write("Session State:", st.session_state)
+
+try:
+    st.write("Testing OpenWeatherMap Key:", st.secrets["OPENWEATHER_APIKEY"][:5] + "*****")
+except KeyError:
+    st.error("🚨 OPENWEATHER_APIKEY not found in secrets.toml")
