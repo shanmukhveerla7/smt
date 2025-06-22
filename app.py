@@ -3,7 +3,6 @@ from langchain_ibm import WatsonxLLM
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
 from datetime import datetime
 from fpdf import FPDF
-
 # Language translations for smart city domain
 LANGUAGES = {
     "en": {
@@ -243,7 +242,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('</div>')
+    st.markdown('</div>')  # Correctly placed at the end of the card
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
