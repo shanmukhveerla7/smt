@@ -56,6 +56,7 @@ st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_i
 # Custom CSS - Unique styles for each dashboard
 st.markdown("""
     <style>
+        /* Global Styles */
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', sans-serif;
@@ -68,7 +69,7 @@ st.markdown("""
             margin: auto;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
         }
 
         h1, h2, h3 {
@@ -92,8 +93,16 @@ st.markdown("""
             font-size: 14px;
         }
 
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #87CEFA;
+            box-shadow: 0 0 0 3px rgba(135, 206, 250, 0.2);
+            outline: none;
+        }
+
         button {
-            background-color: #3498db;
+            background-color: #007BFF;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -104,7 +113,7 @@ st.markdown("""
         }
 
         button:hover {
-            background-color: #2980b9;
+            background-color: #0056b3;
         }
 
         /* Navigation Bar */
@@ -117,6 +126,7 @@ st.markdown("""
             border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-radius: 8px;
         }
 
         .nav-button {
@@ -129,11 +139,12 @@ st.markdown("""
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         .nav-button:hover {
             background-color: #def8ff;
-            color: #2980b9;
+            color: #007BFF;
             border-color: #bbb;
         }
 
@@ -142,65 +153,96 @@ st.markdown("""
             cursor: not-allowed;
         }
 
-        /* Dashboard Card Styles */
+        /* Dashboard Card Styles - Modern and Distinct */
+
         .card-chat {
             background-color: #f3f9fb;
-            padding: 20px;
+            padding: 22px;
             margin: 15px 0;
-            border-left: 6px solid #2980b9;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid #007AFF;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-chat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-traffic {
             background-color: #fff7f6;
-            padding: 20px;
+            padding: 22px;
             margin: 15px 0;
-            border-left: 6px solid #e67e22;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid #E63946;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-traffic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-energy {
             background-color: #f2fbf6;
-            padding: 20px;
+            padding: 22px;
             margin: 15px 0;
-            border-left: 6px solid #27ae60;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid #2A9D8F;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-energy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-environment {
             background-color: #f0f7ff;
-            padding: 20px;
+            padding: 22px;
             margin: 15px 0;
-            border-left: 6px solid #3498db;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid #264DE4;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-environment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-reports {
             background-color: #fffbe6;
-            padding: 20px;
+            padding: 22px;
             margin: 15px 0;
-            border-left: 6px solid #f39c12;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 6px solid #F4A261;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-reports:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-settings {
-            background-color: #ffffff;
-            padding: 24px;
-            margin: 20px 0;
-            border-left: 6px solid #555;
+            background-color: #f5f5f5;
+            padding: 22px;
+            margin: 15px 0;
+            border-left: 6px solid #6A7581;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .card-settings:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         /* Chat Bubbles */
@@ -211,33 +253,35 @@ st.markdown("""
         }
 
         .user-bubble {
-            background-color: #2c3e50;
+            background-color: #007AFF;
             color: white;
             align-self: flex-end;
             border-radius: 12px;
             padding: 10px 15px;
             max-width: 70%;
             font-size: 14px;
+            word-wrap: break-word;
         }
 
         .bot-bubble {
-            background-color: #ecf0f1;
-            color: black;
+            background-color: #f1f1f1;
+            color: #333;
             align-self: flex-start;
             border-radius: 12px;
             padding: 10px 15px;
             max-width: 70%;
             font-size: 14px;
+            word-wrap: break-word;
         }
 
         /* Footer */
         .footer {
             text-align: center;
             font-size: 14px;
-            color: #666;
+            color: #6c757d;
             margin-top: 40px;
             padding: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e9ecef;
         }
     </style>
 """, unsafe_allow_html=True)
