@@ -3,7 +3,6 @@ from langchain_ibm import WatsonxLLM
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
 from datetime import datetime
 from fpdf import FPDF
-
 # Language translations for smart city domain
 LANGUAGES = {
     "en": {
@@ -169,7 +168,7 @@ def export_city_report():
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    col1, col2, col3, col4, col5, col6 = st.columns(6)  # Reduced from 7 to 6 columns
+    col1, col2, col3, col4, col5, col6 = st.columns(6)  # Reduced columns from 7 to 6
     with col1:
         if st.button("챗", key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -243,8 +242,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('</div>')  # End of card div
-    st.markdown('<h4>Thank you!!</h4>', unsafe_allow_html=True)  # Custom thank you message
+    st.write("Thanks")  # Replaced </div> with "Thanks"
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -348,3 +346,8 @@ st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["fo
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
     st.write("Session State:", st.session_state)
+
+try:
+    st.write("Testing OpenWeatherMap Key:", st.secrets["OPENWEATHER_APIKEY"][:5] + "*****")
+except KeyError:
+    st.error("🚨 OPENWEATHER_APIKEY not found in secrets.toml")
