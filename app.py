@@ -189,12 +189,18 @@ st.markdown("""
         }
 
         .card-settings {
-            background-color: #f8f9fa;
-            padding: 20px;
-            margin: 15px 0;
-            border-left: 6px solid #999;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            background-color: #ffffff;
+            padding: 24px;
+            margin: 20px 0;
+            border-left: 6px solid #555;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-settings:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
         }
 
         /* Chat Bubbles */
