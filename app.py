@@ -53,7 +53,7 @@ LANGUAGES = {
 # Page config
 st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_icon="🌆")
 
-# Custom CSS - Unique Dashboard Styles
+# Custom CSS - Unique styles for each dashboard
 st.markdown("""
     <style>
         body {
@@ -67,14 +67,13 @@ st.markdown("""
             margin: auto;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         h1, h2, h3 {
             color: #2c3e50;
             font-size: 20px;
             font-weight: bold;
-            margin-top: 10px;
         }
 
         label {
@@ -84,11 +83,10 @@ st.markdown("""
         }
 
         input, select, textarea {
-            font-size: 14px;
-            font-weight: normal;
             border-radius: 6px;
             border: 1px solid #ccc;
-            padding: 8px;
+            padding: 10px;
+            width: 100%;
         }
 
         button {
@@ -99,7 +97,6 @@ st.markdown("""
             font-size: 14px;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s ease;
         }
 
         button:hover {
@@ -112,16 +109,15 @@ st.markdown("""
             justify-content: center;
             gap: 20px;
             padding: 10px 0;
-            margin-bottom: 20px;
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
         }
 
         .nav-button {
             background-color: #ffffff;
             color: #2c3e50;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             width: 140px;
             height: 40px;
             font-size: 14px;
@@ -133,7 +129,7 @@ st.markdown("""
         .nav-button:hover {
             background-color: #def8ff;
             color: #2980b9;
-            border-color: #ccc;
+            border-color: #bbb;
         }
 
         .nav-button:disabled {
@@ -141,18 +137,20 @@ st.markdown("""
             cursor: not-allowed;
         }
 
-        /* Section Cards */
+        /* Dashboard Card Styles */
         .card-chat {
             background-color: #ebf5fb;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #2980b9;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .card-traffic {
-            background-color: #fef4f7;
+            background-color: #fff4f4;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #e74c3c;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -161,6 +159,7 @@ st.markdown("""
         .card-energy {
             background-color: #f0fbec;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #27ae60;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -169,14 +168,16 @@ st.markdown("""
         .card-environment {
             background-color: #e8f4ff;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #2980b9;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .card-reports {
-            background-color: #fff8e6;
+            background-color: #fffde7;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #f39c12;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -185,6 +186,7 @@ st.markdown("""
         .card-settings {
             background-color: #f2f2f2;
             padding: 20px;
+            margin: 15px 0;
             border-left: 6px solid #999;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -195,15 +197,15 @@ st.markdown("""
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 10px;
         }
 
         .user-bubble {
             background-color: #2c3e50;
             color: white;
             align-self: flex-end;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 10px 15px;
+            max-width: 70%;
             font-size: 14px;
         }
 
@@ -211,8 +213,9 @@ st.markdown("""
             background-color: #ecf0f1;
             color: black;
             align-self: flex-start;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 10px 15px;
+            max-width: 70%;
             font-size: 14px;
         }
 
@@ -220,12 +223,11 @@ st.markdown("""
         .footer {
             text-align: center;
             font-size: 14px;
-            margin-top: 40px;
             color: #777;
+            margin-top: 40px;
+            padding: 20px;
             border-top: 1px solid #eee;
-            padding-top: 20px;
         }
-
     </style>
 """, unsafe_allow_html=True)
 
@@ -309,16 +311,16 @@ def render_navbar():
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
-        if st.button(LANGUAGES[lang]["chat"], key="btn_chat", use_container_width=True):
+        if st.button(LANGUAGES[lang]["chat"], key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
     with col2:
-        if st.button(LANGUAGES[lang]["traffic"], key="btn_traffic", use_container_width=True):
+        if st.button(LANGUAGES[lang]["traffic"], key="btn_traffic", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "traffic"
     with col3:
-        if st.button(LANGUAGES[lang]["energy"], key="btn_energy", use_container_width=True):
+        if st.button(LANGUAGES[lang]["energy"], key="btn_energy", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "energy"
     with col4:
-        if st.button(LANGUAGES[lang]["environment"], key="btn_environment", use_container_width=True):
+        if st.button(LANGUAGES[lang]["environment"], key="btn_environment", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "environment"
     with col5:
         if st.button("🧾", key="btn_profile", use_container_width=True):
@@ -344,6 +346,7 @@ def save_profile(name, role, department, location):
     }
     st.session_state.profile_complete = True
     st.success("✅ Profile saved successfully!")
+    st.rerun()
 
 def reset_profile():
     st.session_state.profile_complete = False
@@ -355,18 +358,18 @@ def reset_profile():
 # ------------------------------ SETTINGS ------------------------------
 if st.session_state.current_section == "settings":
     st.markdown('<div class="card-settings">', unsafe_allow_html=True)
-    st.markdown(f'<h2>{LANGUAGES[lang]["settings"]}</h2>', unsafe_allow_html=True)
+    st.markdown(f'<h2>⚙️ {LANGUAGES[lang]["settings"]}</h2>', unsafe_allow_html=True)
     language = st.selectbox("Language", options=["en", "es", "fr"], format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}[x])
     theme = st.selectbox("Theme", ["Light"])
     font_size = st.slider("Font Size", 12, 24)
-    if st.button("💾 Save Preferences"):
+    if st.button(LANGUAGES[lang]["save_profile"]):
         st.session_state.language = language
         st.success("Preferences updated!")
     st.markdown('</div>')
 
 # ------------------------------ USER PROFILE ------------------------------
 elif st.session_state.current_section == "profile":
-    st.markdown('<div class="card-reports">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
     name = st.text_input("Full Name")
     role = st.selectbox("Role", ["Mayor", "Engineer", "Planner", "Analyst"])
@@ -383,11 +386,12 @@ elif st.session_state.current_section == "profile":
             reset_profile()
     st.markdown('</div>')
 
-# If profile not completed, show message only
-elif st.session_state.current_section != "profile" and not st.session_state.profile_complete:
-    st.info("ℹ️ You can still explore without completing your profile.", icon="🪪")
+# If profile not completed, stop further access
+elif not st.session_state.profile_complete:
+    st.info("ℹ️ Please complete your profile before continuing.")
     if st.button("Go to Profile"):
         st.session_state.current_section = "profile"
+    st.stop()
 
 # ------------------------------ CHATBOT ------------------------------
 elif st.session_state.current_section == "chat":
@@ -448,8 +452,8 @@ elif st.session_state.current_section == "environment":
 # ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
     st.markdown('<div class="card-reports">', unsafe_allow_html=True)
-    st.markdown('<h2>📊 City Reports</h2>', unsafe_allow_html=True)
-    
+    st.markdown(f'<h2>📊 {LANGUAGES[lang]["reports"]}</h2>', unsafe_allow_html=True)
+
     traffic_delay = st.slider("Avg Daily Traffic Delay (min)", 0, 60, step=1)
     co2_level = st.slider("CO2 Level (ppm)", 300, 600, step=5)
     energy_use = st.slider("Energy Use (kWh/day)", 50, 500, step=10)
@@ -468,7 +472,7 @@ elif st.session_state.current_section == "reports":
         summary = get_llm("reports").invoke(f"Give a short city analysis based on: {st.session_state.city_data}")
         st.markdown(f'<div class="bot-bubble">{summary}</div>', unsafe_allow_html=True)
 
-    if st.session_state.city_data:
+    if st.session_state.profile_complete and st.session_state.city_data:
         st.download_button(
             label=LANGUAGES[lang]["export_pdf"],
             data=export_city_report(),
