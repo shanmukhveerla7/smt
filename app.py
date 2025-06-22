@@ -420,7 +420,7 @@ if st.session_state.current_section == "settings":
     if st.button(LANGUAGES[lang]["save_profile"]):
         st.session_state.language = language
         st.success("Preferences updated!")
-    st.markdown('</div>')
+    st.markdown('About Assistant')
 
 # ------------------------------ USER PROFILE ------------------------------
 elif st.session_state.current_section == "profile":
