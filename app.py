@@ -389,7 +389,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('</div>')
+    st.markdown('Grateful for your time exploring our assistant!!')
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -419,7 +419,7 @@ elif st.session_state.current_section == "chat":
             except Exception as e:
                 st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
                 st.rerun()
-    st.markdown('</div>')
+    st.markdown('Thank You!!')
 
 # ------------------------------ TRAFFIC MONITOR ------------------------------
 elif st.session_state.current_section == "traffic":
@@ -430,7 +430,7 @@ elif st.session_state.current_section == "traffic":
         llm = get_llm("traffic")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Thank You!!')
 
 # ------------------------------ ENERGY TRACKER ------------------------------
 elif st.session_state.current_section == "energy":
@@ -441,7 +441,7 @@ elif st.session_state.current_section == "energy":
         llm = get_llm("energy")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Thank You!!')
 
 # ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
 elif st.session_state.current_section == "environment":
@@ -452,7 +452,7 @@ elif st.session_state.current_section == "environment":
         llm = get_llm("environment")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Thank You!!')
 
 # ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
@@ -484,7 +484,7 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
-    st.markdown('</div>')
+    st.markdown('Thank You!!')
 
 # Footer
 st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
