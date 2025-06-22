@@ -205,13 +205,16 @@ def save_profile(name, role, department, location):
         "location": location
     }
     st.session_state.profile_complete = True
+    st.session_state.current_section = "chat"  # Redirect to chat dashboard
     st.success("✅ Profile saved successfully!")
+    st.rerun()
 
 def reset_profile():
     st.session_state.profile_complete = False
     st.session_state.profile_data = {}
     st.session_state.messages = []
     st.session_state.city_data = {}
+    st.session_state.current_section = "profile"
     st.rerun()
 
 # ------------------------------ SETTINGS ------------------------------
