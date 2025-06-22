@@ -169,7 +169,7 @@ def export_city_report():
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    col1, col2, col3, col4, col5, col6 = st.columns(6)  # Reduced from 7 (weather removed)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         if st.button("챗", key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -206,6 +206,7 @@ def save_profile(name, role, department, location):
     }
     st.session_state.profile_complete = True
     st.success("✅ Profile saved successfully!")
+    st.rerun()
 
 def reset_profile():
     st.session_state.profile_complete = False
@@ -243,7 +244,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('Thank You!!')  # End of card div
+    st.markdown('</div>')
 
 # If profile not completed, stop further access
 elif not st.session_state.profile_complete:
@@ -338,6 +339,7 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
+
     st.markdown('</div>')
 
 # Footer
