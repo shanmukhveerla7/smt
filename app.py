@@ -289,6 +289,7 @@ elif st.session_state.current_section == "traffic":
 
 # ------------------------------ ENERGY TRACKER ------------------------------
 elif st.session_state.current_section == "energy":
+    st.markdown('<hr style="border: none; border-top: 2px dotted #999; margin: 20px 0;">', unsafe_allow_html=True)
     st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
     query = st.text_input("Ask about power usage or grid issues:")
     if st.button("Get Suggestions"):
