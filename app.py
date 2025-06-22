@@ -289,55 +289,6 @@ elif st.session_state.current_section == "traffic":
 
 # ------------------------------ ENERGY TRACKER ------------------------------
 elif st.session_state.current_section == "energy":
-    st.markdown("""
-    <style>
-        .card {
-            background-color: #ffffff;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 6px solid #3498db;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .card-blue {
-            background-color: #e8f4ff;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 6px solid #2980b9;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .card-green {
-            background-color: #ebfaef;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 6px solid #2ecc71;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .card-orange {
-            background-color: #fff8e6;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 6px solid #e67e22;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .card-red {
-            background-color: #ffeaea;
-            padding: 25px;
-            margin: 20px 0;
-            border-left: 6px solid #e74c3c;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-    </style>
-""", unsafe_allow_html=True)
-    st.markdown('<div class="card-green">', unsafe_allow_html=True)
     st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
     query = st.text_input("Ask about power usage or grid issues:")
     if st.button("Get Suggestions"):
