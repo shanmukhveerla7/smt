@@ -478,7 +478,7 @@ def render_navbar():
     with col6:
         if st.button("🧾", key="btn_profile", use_container_width=True):
             st.session_state.current_section = "profile"
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!', unsafe_allow_html=True)
 
 # Header
 lang = st.session_state.language
@@ -515,7 +515,7 @@ if st.session_state.current_section == "settings":
     if st.button(LANGUAGES[lang]["save_profile"]):
         st.session_state.language = language
         st.success("Preferences updated!")
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ USER PROFILE ------------------------------
 elif st.session_state.current_section == "profile":
@@ -534,7 +534,7 @@ elif st.session_state.current_section == "profile":
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # If profile not completed, show message only
 elif not st.session_state.profile_complete:
@@ -564,7 +564,7 @@ elif st.session_state.current_section == "chat":
             except Exception as e:
                 st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
                 st.rerun()
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ TRAFFIC MONITOR ------------------------------
 elif st.session_state.current_section == "traffic":
@@ -575,7 +575,7 @@ elif st.session_state.current_section == "traffic":
         llm = get_llm("traffic")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ ENERGY TRACKER ------------------------------
 elif st.session_state.current_section == "energy":
@@ -586,7 +586,7 @@ elif st.session_state.current_section == "energy":
         llm = get_llm("energy")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
 elif st.session_state.current_section == "environment":
@@ -597,7 +597,7 @@ elif st.session_state.current_section == "environment":
         llm = get_llm("environment")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ WEATHER DASHBOARD ------------------------------
 elif st.session_state.current_section == "weather":
@@ -669,7 +669,7 @@ elif st.session_state.current_section == "weather":
         else:
             st.warning("Please enter a city name.")
 
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # ------------------------------ PROGRESS REPORTS ------------------------------
 elif st.session_state.current_section == "reports":
@@ -701,7 +701,7 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
-    st.markdown('</div>')
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
 
 # Footer
 st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
