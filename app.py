@@ -12,12 +12,13 @@ LANGUAGES = {
     "en": {
         "title": "🌆 Smart City Assistant",
         "subtitle": "Ask about traffic, energy, environment, weather, and infrastructure.",
+        "home_welcome": "🌆 Welcome to Your Smart City Assistant",
+        "highlights": "### 🏙️ Highlights:",
         "chat": "🤖 AI Chatbot",
         "traffic": "🚦 Traffic Monitor",
         "energy": "⚡ Energy Tracker",
         "environment": "🌍 Environmental Insights",
         "weather": "🌦️ Weather Forecast",
-        "air_pollution": "🌫️ Air Pollution",
         "reports": "📊 City Reports",
         "settings": "⚙️ Settings & Preferences",
         "footer": "© 2025 SmartCity Assistant | Built with ❤️ using Streamlit & Watsonx",
@@ -28,12 +29,13 @@ LANGUAGES = {
     "es": {
         "title": "🌆 Asistente de Ciudad Inteligente",
         "subtitle": "Pregunte sobre tráfico, energía y medio ambiente.",
+        "home_welcome": "🌆 Bienvenido al Asistente de Ciudad Inteligente",
+        "highlights": "### 🏙️ Destacados:",
         "chat": "🤖 Chatbot con IA",
         "traffic": "🚦 Monitoreo del Tráfico",
         "energy": "⚡ Seguimiento Energético",
         "environment": "🌍 Información Ambiental",
         "weather": "🌦️ Pronóstico del Tiempo",
-        "air_pollution": "🌫️ Calidad del Aire",
         "reports": "📊 Informes de la Ciudad",
         "settings": "⚙️ Configuración y Preferencias",
         "footer": "© 2025 Asistente de Ciudad Inteligente | Hecho con ❤️ usando Streamlit & Watsonx",
@@ -44,12 +46,13 @@ LANGUAGES = {
     "fr": {
         "title": "🌆 Assistant Ville Intelligent",
         "subtitle": "Posez des questions sur le trafic, l'énergie et l'environnement.",
+        "home_welcome": "🌆 Bienvenue dans votre Assistant Ville Intelligent",
+        "highlights": "### 🏙️ Points forts :",
         "chat": "🤖 Chatbot avec IA",
         "traffic": "🚦 Surveillance du Trafic",
         "energy": "⚡ Suivi Énergétique",
         "environment": "🌍 Analyse Environnementale",
         "weather": "🌦️ Météo",
-        "air_pollution": "🌫️ Qualité de l'Air",
         "reports": "📊 Rapports Urbains",
         "settings": "⚙️ Paramètres et Préférences",
         "footer": "© 2025 Assistant Ville Intelligent | Réalisé avec ❤️ en utilisant Streamlit & Watsonx",
@@ -67,29 +70,18 @@ st.markdown("""
     <style>
         body { background-color: #e8f4ff; font-family: 'Segoe UI', sans-serif; }
         .main { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .card-chat { background-color: #f3f9fb; padding: 22px; margin: 15px 0; border-left: 6px solid #007AFF; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-traffic { background-color: #fff7f6; padding: 22px; margin: 15px 0; border-left: 6px solid #E63946; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-energy { background-color: #f2fbf6; padding: 22px; margin: 15px 0; border-left: 6px solid #2A9D8F; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-environment { background-color: #f0f7ff; padding: 22px; margin: 15px 0; border-left: 6px solid #264DE4; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-weather { background-color: #fffbe6; padding: 22px; margin: 15px 0; border-left: 6px solid #F4A261; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-air-pollution { background-color: #f8f9fa; padding: 22px; margin: 15px 0; border-left: 6px solid #6A7581; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-reports { background-color: #f5f5f5; padding: 22px; margin: 15px 0; border-left: 6px solid #6A7581; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-settings { background-color: #f5f5f5; padding: 22px; margin: 15px 0; border-left: 6px solid #999; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-
-        .card-chat:hover, .card-traffic:hover, .card-energy:hover, .card-environment:hover,
-        .card-weather:hover, .card-air-pollution:hover, .card-reports:hover, .card-settings:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
+        .card { background-color: #ffffff; padding: 25px; margin: 20px 0; border-left: 6px solid #3498db; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .navbar { display: flex; justify-content: center; gap: 20px; padding: 15px 0; background: linear-gradient(to right, #3498db, #2ecc71); border-radius: 10px; margin-bottom: 25px; }
+        .nav-button { background-color: #ffffff; color: #3498db; border: none; width: 50px; height: 50px; font-size: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .nav-button:hover { background-color: #def8ff; transform: scale(1.1); }
         h1, h2, h3 { color: #2c3e50; }
         label { font-weight: bold; color: #34495e; }
         input, select, textarea { border-radius: 8px; border: 1px solid #ccc; padding: 10px; width: 100%; font-size: 14px; }
         button { background-color: #3498db; color: white; border: none; padding: 10px 20px; font-size: 14px; border-radius: 8px; cursor: pointer; }
         button:hover { background-color: #2980b9; }
         .user-bubble {
-            background-color: #d6ecf3;
-            color: black;
+            background-color: #2c3e50;
+            color: white;
             align-self: flex-end;
             border-radius: 12px;
             padding: 10px 15px;
@@ -98,7 +90,7 @@ st.markdown("""
             font-size: 14px;
         }
         .bot-bubble {
-            background-color: #dff0d8;
+            background-color: #ffffff;
             color: black;
             align-self: flex-start;
             border-radius: 12px;
@@ -108,41 +100,6 @@ st.markdown("""
             font-size: 14px;
         }
         .chat-container { display: flex; flex-direction: column; gap: 10px; }
-        .navbar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 15px 0;
-            background: linear-gradient(to right, #3498db, #2ecc71);
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-        .nav-button {
-            background-color: #ffffff;
-            color: #3498db;
-            border: none;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .nav-button:hover {
-            background-color: #def8ff;
-            transform: scale(1.1);
-        }
-        .footer {
-            text-align: center;
-            font-size: 14px;
-            color: #6c757d;
-            margin-top: 40px;
-            padding: 20px;
-            border-top: 1px solid #e9ecef;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -220,23 +177,11 @@ def export_city_report():
     pdf.output("city_report.pdf")
     return open("city_report.pdf", "rb").read()
 
-# Fetch weather data
-def get_weather_data(city, api_key):
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}q={city}&appid={api_key}"
-    response = requests.get(complete_url).json()
-    return response
-
-def get_air_pollution_data(lat, lon, api_key):
-    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}"
-    response = requests.get(url).json()
-    return response
-
 # Navigation Bar
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
     with col1:
         if st.button("챗", key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -256,9 +201,6 @@ def render_navbar():
         if st.button("🌫️", key="btn_air_pollution", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "air_pollution"
     with col7:
-        if st.button("📊", key="btn_reports", use_container_width=True, disabled=not st.session_state.profile_complete):
-            st.session_state.current_section = "reports"
-    with col8:
         if st.button("🧾", key="btn_profile", use_container_width=True):
             st.session_state.current_section = "profile"
     st.markdown('</div>', unsafe_allow_html=True)
@@ -287,9 +229,22 @@ def reset_profile():
     st.session_state.city_data = {}
     st.rerun()
 
+# Fetch weather data
+def get_weather_data(city, api_key):
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    complete_url = f"{base_url}q={city}&appid={api_key}"
+    response = requests.get(complete_url).json()
+    return response
+
+# Fetch air pollution data
+def get_air_pollution_data(lat, lon, api_key):
+    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}"
+    response = requests.get(url).json()
+    return response
+
 # ------------------------------ SETTINGS ------------------------------
 if st.session_state.current_section == "settings":
-    st.markdown('<div class="card-settings">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown(f'<h2>⚙️ {LANGUAGES[lang]["settings"]}</h2>', unsafe_allow_html=True)
     language = st.selectbox("Language", options=["en", "es", "fr"], format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}[x])
     theme = st.selectbox("Theme", ["Light"])
@@ -297,148 +252,22 @@ if st.session_state.current_section == "settings":
     if st.button(LANGUAGES[lang]["save_profile"]):
         st.session_state.language = language
         st.success("Preferences updated!")
-    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
     st.markdown('</div>')
-
-# ------------------------------ USER PROFILE ------------------------------
-elif st.session_state.current_section == "profile":
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
-    name = st.text_input("Full Name")
-    role = st.selectbox("Role", ["Mayor", "Engineer", "Planner", "Analyst"])
-    department = st.text_input("Department")
-    location = st.text_input("City / District")
-    if st.button("Save Profile"):
-        if name and role and department and location:
-            save_profile(name, role, department, location)
-        else:
-            st.error("❌ Please fill in all fields.")
-    if st.session_state.profile_complete:
-        st.markdown('<br>', unsafe_allow_html=True)
-        if st.button("🔄 Reset Profile"):
-            reset_profile()
-    st.markdown('</div>')
-
-# If profile not completed, stop further access
-elif not st.session_state.profile_complete:
-    st.info("ℹ️ Please complete your profile before continuing.")
-    if st.button("Go to Profile"):
-        st.session_state.current_section = "profile"
-    st.stop()
-
-# ------------------------------ CHATBOT ------------------------------
-elif st.session_state.current_section == "chat":
-    st.markdown('<div class="card-chat">', unsafe_allow_html=True)
-    st.markdown('<h2>🤖 AI Chatbot</h2>', unsafe_allow_html=True)
-    for role, content in st.session_state.messages:
-        bubble_class = "user-bubble" if role == "user" else "bot-bubble"
-        st.markdown(f'<div class="{bubble_class}"><b>{role.capitalize()}:</b> {content}</div>', unsafe_allow_html=True)
-    with st.form(key='chat_form', clear_on_submit=True):
-        user_input = st.text_input("Your question:", placeholder="Type something like 'What's the traffic today?'...")
-        submit_button = st.form_submit_button(label="Send")
-    if submit_button and user_input:
-        st.session_state.messages.append(("user", user_input))
-        with st.spinner("Thinking..."):
-            try:
-                llm = get_llm("chat")
-                res = llm.invoke(user_input)
-                st.session_state.messages.append(("assistant", res))
-                st.rerun()
-            except Exception as e:
-                st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
-                st.rerun()
-    st.markdown('</div>')
-
-# ------------------------------ TRAFFIC MONITOR ------------------------------
-elif st.session_state.current_section == "traffic":
-    st.markdown('<div class="card-traffic">', unsafe_allow_html=True)
-    st.markdown('<h2>🚦 Traffic Monitor</h2>', unsafe_allow_html=True)
-    query = st.text_area("Describe your traffic-related issue or question:")
-    if st.button("Get Advice"):
-        llm = get_llm("traffic")
-        res = llm.invoke(query)
-        st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
-
-# ------------------------------ ENERGY TRACKER ------------------------------
-elif st.session_state.current_section == "energy":
-    st.markdown('<div class="card-energy">', unsafe_allow_html=True)
-    st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
-    query = st.text_input("Ask about power usage or grid issues:")
-    if st.button("Get Suggestions"):
-        llm = get_llm("energy")
-        res = llm.invoke(query)
-        st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
-
-# ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
-elif st.session_state.current_section == "environment":
-    st.markdown('<div class="card-environment">', unsafe_allow_html=True)
-    st.markdown('<h2>🌍 Environmental Insights</h2>', unsafe_allow_html=True)
-    query = st.text_area("Ask about pollution, air quality, or sustainability:")
-    if st.button("Get Insight"):
-        llm = get_llm("environment")
-        res = llm.invoke(query)
-        st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
-    st.markdown('</div>')
-
-# ------------------------------ WEATHER FORECAST ------------------------------
-elif st.session_state.current_section == "weather":
-    st.markdown('<div class="card-weather">', unsafe_allow_html=True)
-    st.markdown('<h2>🌦️ Weather Forecast</h2>', unsafe_allow_html=True)
-    city = st.text_input("Enter City Name", key="weather_city")
-    
-    try:
-        weather_api_key = st.secrets["OPENWEATHER_APIKEY"]
-    except KeyError:
-        st.error("🚨 OPENWEATHER_APIKEY missing from secrets.toml")
-        st.stop()
-        
-    if st.button("Get Current Weather", key="get_current_weather"):
-        if city:
-            try:
-                data = get_weather_data(city, weather_api_key)
-                if data.get("cod") != 200:
-                    st.error("❌ Unable to fetch weather data. Check city name or API key.")
-                else:
-                    current_temp = data["main"]["temp"] - 273.15
-                    feels_like = data["main"]["feels_like"] - 273.15
-                    humidity = data["main"]["humidity"]
-                    wind_speed = data["wind"]["speed"]
-                    description = data["weather"][0]["description"].capitalize()
-                    st.write(f"""
-                        **City:** {data['name']}  
-                        **Temperature:** {current_temp:.1f}°C  
-                        **Feels Like:** {feels_like:.1f}°C  
-                        **Humidity:** {humidity}%  
-                        **Wind Speed:** {wind_speed} m/s  
-                        **Description:** {description}
-                    """)
-            except Exception as e:
-                st.error(f"🚨 Error fetching weather: {str(e)}")
-        else:
-            st.warning("Please enter a city name.")
-
-    st.markdown('</div>')
-
-# ------------------------------ AIR POLLUTION MODULE ------------------------------
 elif st.session_state.current_section == "air_pollution":
-    st.markdown('<div class="card-air-pollution">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<h2>🌫️ Air Pollution Monitor</h2>', unsafe_allow_html=True)
-    city = st.text_input("Enter City Name", key="pollution_city")
-
+    city = st.text_input("Enter City Name")
     try:
         weather_api_key = st.secrets["OPENWEATHER_APIKEY"]
     except KeyError:
-        st.error("🚨 OpenWeatherMap API key missing in secrets.toml")
+        st.error("🚨 OPENWEATHER_APIKEY is missing from secrets.toml")
         st.stop()
-
-    if st.button("Get Air Quality", key="aqi_button"):
+    if st.button("Get Air Quality"):
         if city:
             try:
                 weather_data = get_weather_data(city, weather_api_key)
                 if weather_data.get("cod") != 200:
-                    st.error("❌ Unable to fetch weather data. Check city name or API key.")
+                    st.error("❌ Unable to fetch weather data. Please check city name or API key.")
                 else:
                     lat = weather_data["coord"]["lat"]
                     lon = weather_data["coord"]["lon"]
@@ -461,11 +290,115 @@ elif st.session_state.current_section == "air_pollution":
                 st.error(f"🚨 Error fetching air pollution data: {str(e)}")
         else:
             st.warning("Please enter a city name.")
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
     st.markdown('</div>')
-
-# ------------------------------ PROGRESS REPORTS ------------------------------
+elif st.session_state.current_section == "profile":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
+    name = st.text_input("Full Name")
+    role = st.selectbox("Role", ["Mayor", "Engineer", "Planner", "Analyst"])
+    department = st.text_input("Department")
+    location = st.text_input("City / District")
+    if st.button("Save Profile"):
+        if name and role and department and location:
+            save_profile(name, role, department, location)
+        else:
+            st.error("❌ Please fill in all fields.")
+    if st.session_state.profile_complete:
+        st.markdown('<br>', unsafe_allow_html=True)
+        if st.button("🔄 Reset Profile"):
+            reset_profile()
+    st.markdown('</div>')
+elif not st.session_state.profile_complete:
+    st.info("ℹ️ Please complete your profile before continuing.")
+    if st.button("Go to Profile"):
+        st.session_state.current_section = "profile"
+    st.stop()
+elif st.session_state.current_section == "chat":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🤖 AI Chatbot</h2>', unsafe_allow_html=True)
+    for role, content in st.session_state.messages:
+        bubble_class = "user-bubble" if role == "user" else "bot-bubble"
+        st.markdown(f'<div class="{bubble_class}"><b>{role.capitalize()}:</b> {content}</div>', unsafe_allow_html=True)
+    with st.form(key='chat_form', clear_on_submit=True):
+        user_input = st.text_input("Your question:", placeholder="Type something like 'What's the traffic today?'...")
+        submit_button = st.form_submit_button(label="Send")
+    if submit_button and user_input:
+        st.session_state.messages.append(("user", user_input))
+        with st.spinner("Thinking..."):
+            try:
+                llm = get_llm("chat")
+                res = llm.invoke(user_input)
+                st.session_state.messages.append(("assistant", res))
+                st.rerun()
+            except Exception as e:
+                st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
+                st.rerun()
+    st.markdown('</div>')
+elif st.session_state.current_section == "traffic":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🚦 Traffic Monitor</h2>', unsafe_allow_html=True)
+    query = st.text_area("Describe your traffic-related issue or question:")
+    if st.button("Get Advice"):
+        llm = get_llm("traffic")
+        res = llm.invoke(query)
+        st.markdown(f'<div class="bot-bubble">🧠 **AI Response:**\n{res}</div>', unsafe_allow_html=True)
+    st.markdown('</div>')
+elif st.session_state.current_section == "energy":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
+    query = st.text_input("Ask about power usage or grid issues:")
+    if st.button("Get Suggestions"):
+        llm = get_llm("energy")
+        res = llm.invoke(query)
+        st.markdown(f'<div class="bot-bubble">💡 **Suggestions:**\n{res}</div>', unsafe_allow_html=True)
+    st.markdown('</div>')
+elif st.session_state.current_section == "environment":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🌍 Environmental Insights</h2>', unsafe_allow_html=True)
+    query = st.text_area("Ask about pollution, air quality, or sustainability:")
+    if st.button("Get Insight"):
+        llm = get_llm("environment")
+        res = llm.invoke(query)
+        st.markdown(f'<div class="bot-bubble">🌱 **Analysis:**\n{res}</div>', unsafe_allow_html=True)
+    st.markdown('</div>')
+elif st.session_state.current_section == "weather":
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<h2>🌦️ Weather Forecast</h2>', unsafe_allow_html=True)
+    city = st.text_input("Enter City Name")
+    try:
+        weather_api_key = st.secrets["OPENWEATHER_APIKEY"]
+    except KeyError:
+        st.error("🚨 OPENWEATHER_APIKEY is missing from secrets.toml")
+        st.stop()
+    if st.button("Get Weather"):
+        if city:
+            try:
+                weather_data = get_weather_data(city, weather_api_key)
+                if weather_data.get("cod") != 200:
+                    st.error("❌ Unable to fetch weather data. Please check city name or API key.")
+                else:
+                    current_temp = weather_data["main"]["temp"] - 273.15
+                    feels_like = weather_data["main"]["feels_like"] - 273.15
+                    humidity = weather_data["main"]["humidity"]
+                    wind_speed = weather_data["wind"]["speed"]
+                    description = weather_data["weather"][0]["description"].capitalize()
+                    st.write(f"""
+                        **City:** {weather_data['name']}  
+                        **Temperature:** {current_temp:.1f}°C  
+                        **Feels Like:** {feels_like:.1f}°C  
+                        **Humidity:** {humidity}%  
+                        **Wind Speed:** {wind_speed} m/s  
+                        **Description:** {description}
+                    """)
+            except Exception as e:
+                st.error(f"🚨 Error fetching weather: {str(e)}")
+        else:
+            st.warning("Please enter a city name.")
+    st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>')
 elif st.session_state.current_section == "reports":
-    st.markdown('<div class="card-reports">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown(f'<h2>📊 {LANGUAGES[lang]["reports"]}</h2>', unsafe_allow_html=True)
     traffic_delay = st.slider("Avg Daily Traffic Delay (min)", 0, 60, step=1)
     co2_level = st.slider("CO2 Level (ppm)", 300, 600, step=5)
@@ -481,7 +414,7 @@ elif st.session_state.current_section == "reports":
         st.success("Data saved successfully.")
     if st.button(LANGUAGES[lang]["generate_ai_report"]):
         summary = get_llm("reports").invoke(f"Give a short city analysis based on: {st.session_state.city_data}")
-        st.markdown(f'<div class="bot-bubble">🧠 **AI Analysis:**\n{summary}</div>', unsafe_allow_html=True)
+        st.markdown(f"🧠 **AI Analysis:**\n{summary}")
     if st.session_state.profile_complete and st.session_state.city_data:
         st.download_button(
             label=LANGUAGES[lang]["export_pdf"],
@@ -492,7 +425,7 @@ elif st.session_state.current_section == "reports":
     st.markdown('</div>')
 
 # Footer
-st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
+st.markdown(f'<p style="text-align:center; font-size:14px;">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
 
 # Debug Mode
 with st.expander("🔧 Debug Mode"):
