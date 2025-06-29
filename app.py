@@ -496,6 +496,7 @@ def save_profile(name, role, department, location):
     }
     st.session_state.profile_complete = True
     st.success("✅ Profile saved successfully!")
+    st.session_state.current_section = "chat"
     st.rerun()
 
 def reset_profile():
