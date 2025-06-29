@@ -478,7 +478,7 @@ def render_navbar():
     with col6:
         if st.button("🧾", key="btn_profile", use_container_width=True):
             st.session_state.current_section = "profile"
-    st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!', unsafe_allow_html=True)
+    
 
 # Header
 lang = st.session_state.language
@@ -519,6 +519,7 @@ if st.session_state.current_section == "settings":
 
 # ------------------------------ USER PROFILE ------------------------------
 elif st.session_state.current_section == "profile":
+    st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!', unsafe_allow_html=True)
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
     name = st.text_input("Full Name")
