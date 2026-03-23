@@ -413,7 +413,7 @@ model_map = {
     "chat": "ibm/granite-13b-instruct-v2",
     "traffic": "ibm/granite-13b-instruct-v2",
     "energy": "ibm/granite-13b-instruct-v2",
-    "environment": "ibm/granite-13b-instruct-v2",
+    "environment": "ibm/granite-3-3-8b-instruct",
     "reports": "ibm/granite-13b-instruct-v2"
 }
 
