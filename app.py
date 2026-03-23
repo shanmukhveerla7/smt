@@ -410,11 +410,11 @@ except Exception as e:
     st.stop()
 
 model_map = {
-    "chat": "ibm/granite-13b-instruct-v2",
-    "traffic": "ibm/granite-13b-instruct-v2",
-    "energy": "ibm/granite-13b-instruct-v2",
+    "chat": "ibm/granite-3-3-8b-instruct",
+    "traffic": "ibm/granite-3-3-8b-instruct",
+    "energy": "ibm/granite-3-3-8b-instruct",
     "environment": "ibm/granite-3-3-8b-instruct",
-    "reports": "ibm/granite-13b-instruct-v2"
+    "reports": "ibm/granite-3-3-8b-instruct"
 }
 
 def get_llm(model_name):
