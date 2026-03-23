@@ -6,19 +6,96 @@ from fpdf import FPDF
 import requests
 import pandas as pd
 import altair as alt
+from functools import lru_cache
 
-# Weather functions from uploaded file
-def get_weather_data(city, weather_api_key):
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = base_url + "appid=" + weather_api_key + "&q=" + city
-    response = requests.get(complete_url)
-    return response.json()
+# ========================================
+# 🔧 WEATHER API FUNCTIONS (FIXED)
+# ========================================
 
-def get_weekly_forecast(weather_api_key, lat, lon):
-    base_url = "https://api.openweathermap.org/data/2.5/forecast?"
-    complete_url = f"{base_url}lat={lat}&lon={lon}&appid={weather_api_key}"
-    response = requests.get(complete_url)
-    return response.json()
+@st.cache_data(ttl=300)  # Cache for 5 minutes to respect rate limits
+def get_weather_data(city: str, weather_api_key: str):
+    """Fetch current weather data from OpenWeatherMap"""
+    base_url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "appid": weather_api_key,
+        "units": "metric"  # Returns temperature in Celsius directly
+    }
+    
+    try:
+        response = requests.get(base_url, params=params, timeout=10)
+        data = response.json()
+        
+        # Handle OpenWeather-specific error codes
+        if response.status_code == 401:
+            return {"error": "❌ Invalid API key. Verify in OpenWeather dashboard."}
+        elif response.status_code == 404:
+            return {"error": f"❌ City '{city}' not found. Try 'City,Country' format."}
+        elif response.status_code == 429:
+            return {"error": "⚠️ Rate limit exceeded. Wait 60 seconds before retrying."}
+        elif data.get("cod") != 200:
+            return {"error": f"❌ API Error {data.get('cod')}: {data.get('message', 'Unknown')}"}
+        
+        return data
+    except requests.exceptions.RequestException as e:
+        return {"error": f"🌐 Network error: {str(e)}"}
+    except Exception as e:
+        return {"error": f"💥 Unexpected error: {str(e)}"}
+
+
+@st.cache_data(ttl=300)
+def get_weekly_forecast(weather_api_key: str, lat: float, lon: float):
+    """Fetch 5-day/3-hour forecast from OpenWeatherMap"""
+    base_url = "https://api.openweathermap.org/data/2.5/forecast"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": weather_api_key,
+        "units": "metric",
+        "cnt": 40  # 5 days × 8 intervals/day
+    }
+    
+    try:
+        response = requests.get(base_url, params=params, timeout=15)
+        data = response.json()
+        
+        if response.status_code == 401:
+            return {"error": "❌ Invalid API key for forecast endpoint."}
+        elif data.get("cod") != "200":
+            return {"error": f"❌ Forecast Error: {data.get('message', 'Unknown')}"}
+        
+        return data
+    except Exception as e:
+        return {"error": f"💥 Forecast fetch error: {str(e)}"}
+
+
+@st.cache_data(ttl=300)
+def get_air_pollution_data(lat: float, lon: float, weather_api_key: str):
+    """Fetch air pollution data from OpenWeatherMap"""
+    url = "https://api.openweathermap.org/data/2.5/air_pollution"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": weather_api_key
+    }
+    
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        
+        if response.status_code == 401:
+            return {"error": "❌ Invalid API key for air pollution endpoint."}
+        elif data.get("cod") != "200":
+            return {"error": f"❌ Air Quality Error: {data.get('message', 'Unknown')}"}
+        
+        return data
+    except Exception as e:
+        return {"error": f"💥 Air quality fetch error: {str(e)}"}
+
+
+# ========================================
+# 📊 DISPLAY FUNCTIONS (UNCHANGED)
+# ========================================
 
 def display_weekly_forecast(data):
     try:
@@ -39,9 +116,8 @@ def display_weekly_forecast(data):
             date = datetime.fromtimestamp(day["dt"]).strftime("%A, %B %d")
             if date not in displayed_dates:
                 displayed_dates.add(date)
-
-                min_temp = day["main"]["temp_min"] - 273.15
-                max_temp = day["main"]["temp_max"] - 273.15
+                min_temp = day["main"]["temp_min"]
+                max_temp = day["main"]["temp_max"]
                 description = day["weather"][0]["description"]
 
                 with c1:
@@ -52,25 +128,24 @@ def display_weekly_forecast(data):
                     st.write(f"{min_temp:.1f}°C")
                 with c4:
                     st.write(f"{max_temp:.1f}°C")
-
     except Exception as e:
         st.error("Error displaying forecast: " + str(e))
 
+
 def generate_forecast_summary1(forecast_data, openai_api_key):
     st.warning("OpenAI integration temporarily disabled. Using local summary.")
-    # Simulated fallback using Watsonx or simple string
     try:
         text_block = "Weekly Forecast Summary:\n"
-        for entry in forecast_data["list"][:8]:  # First 24 hours
+        for entry in forecast_data["list"][:8]:
             dt_txt = entry["dt_txt"]
             desc = entry["weather"][0]["description"]
-            temp = entry["main"]["temp"] - 273.15
+            temp = entry["main"]["temp"]
             text_block += f"{dt_txt}: {desc}, {temp:.1f}°C\n"
-
         return text_block
     except Exception as e:
         st.error("Error generating summary: " + str(e))
         return None
+
 
 def plot_forecast_chart(forecast_data):
     daily_data = []
@@ -82,8 +157,8 @@ def plot_forecast_chart(forecast_data):
             seen_dates.add(date_str)
             daily_data.append({
                 "Date": date_str,
-                "Min Temp (°C)": entry["main"]["temp_min"] - 273.15,
-                "Max Temp (°C)": entry["main"]["temp_max"] - 273.15,
+                "Min Temp (°C)": entry["main"]["temp_min"],
+                "Max Temp (°C)": entry["main"]["temp_max"],
                 "Humidity (%)": entry["main"]["humidity"],
                 "Wind Speed (m/s)": entry["wind"]["speed"]
             })
@@ -98,7 +173,7 @@ def plot_forecast_chart(forecast_data):
         .encode(x="Date:T", y="Temperature:Q", color="Type:N")
         .properties(width=700)
     )
-    st.altair_chart(temp_chart)
+    st.altair_chart(temp_chart, use_container_width=True)
 
     st.subheader("💧 Humidity & Wind Speed Forecast")
     hum_wind_chart = (
@@ -108,12 +183,8 @@ def plot_forecast_chart(forecast_data):
         .encode(x="Date:T", y="Value:Q", color="Type:N")
         .properties(width=700)
     )
-    st.altair_chart(hum_wind_chart)
+    st.altair_chart(hum_wind_chart, use_container_width=True)
 
-def get_air_pollution_data(lat, lon, weather_api_key):
-    url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={weather_api_key}"
-    response = requests.get(url)
-    return response.json()
 
 def display_air_pollution(data):
     st.markdown("### 🌫️ Air Quality Index (AQI)")
@@ -136,7 +207,10 @@ def display_air_pollution(data):
         st.error("Error displaying air pollution data: " + str(e))
 
 
-# Language translations
+# ========================================
+# 🌍 LANGUAGE TRANSLATIONS
+# ========================================
+
 LANGUAGES = {
     "en": {
         "title": "🌆 Smart City Assistant",
@@ -185,10 +259,12 @@ LANGUAGES = {
     }
 }
 
-# Page config
+# ========================================
+# ⚙️ PAGE CONFIG & STYLING
+# ========================================
+
 st.set_page_config(page_title="🌆 Smart City Assistant", layout="wide", page_icon="🌆")
 
-# Custom CSS - Unique card styles per dashboard
 st.markdown("""
     <style>
         body {
@@ -196,7 +272,6 @@ st.markdown("""
             font-family: 'Segoe UI', sans-serif;
             color: #343a40;
         }
-
         .main {
             padding: 30px;
             max-width: 1200px;
@@ -205,26 +280,14 @@ st.markdown("""
             border-radius: 10px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
         }
-
-        h1, h2, h3 {
-            color: #2c3e50;
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        label {
-            font-weight: 500;
-            color: #495057;
-            font-size: 14px;
-        }
-
+        h1, h2, h3 { color: #2c3e50; font-weight: 600; }
+        label { font-weight: 500; color: #495057; font-size: 14px; }
         input, select, textarea {
             border-radius: 6px;
             border: 1px solid #ced4da;
             padding: 10px;
             width: 100%;
         }
-
         button {
             background-color: #007AFF;
             color: white;
@@ -234,11 +297,8 @@ st.markdown("""
             border-radius: 6px;
             cursor: pointer;
         }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
+        button:hover { background-color: #0056b3; }
+        
         /* Navigation Bar */
         .navbar {
             display: flex;
@@ -250,7 +310,6 @@ st.markdown("""
             margin-bottom: 20px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
-
         .nav-button {
             background-color: #ffffff;
             color: #2c3e50;
@@ -262,126 +321,36 @@ st.markdown("""
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
         .nav-button:hover {
             background-color: #def8ff;
             color: #007AFF;
             border-color: #bbb;
         }
-
-        .nav-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Dashboard Card Styles */
-        .card-chat {
-            background-color: #f3f9fb;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #007AFF;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-traffic {
-            background-color: #fff7f6;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #E63946;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-energy {
-            background-color: #f2fbf6;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #2A9D8F;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-environment {
-            background-color: #f0f7ff;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #264DE4;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-weather {
-            background-color: #fffbe6;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #F4A261;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-reports {
-            background-color: #f5f5f5;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #6A7581;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-settings {
-            background-color: #f5f5f5;
-            padding: 22px;
-            margin: 15px 0;
-            border-left: 6px solid #999;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-weather:hover, .card-traffic:hover, .card-energy:hover, .card-environment:hover, .card-chat:hover, .card-reports:hover, .card-settings:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .user-bubble, .bot-bubble {
-            padding: 10px 15px;
-            margin: 8px 0;
-            border-radius: 12px;
-            max-width: 70%;
-            font-size: 14px;
-        }
-
-        .user-bubble {
-            background-color: #007AFF;
-            color: white;
-            align-self: flex-end;
-        }
-
-        .bot-bubble {
-            background-color: #ecf0f1;
-            color: black;
-            align-self: flex-start;
-        }
-
-        .footer {
-            text-align: center;
-            font-size: 14px;
-            color: #6c757d;
-            margin-top: 40px;
-            padding: 20px;
-            border-top: 1px solid #e9ecef;
-        }
+        .nav-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Dashboard Cards */
+        .card-chat { background: #f3f9fb; padding: 22px; margin: 15px 0; border-left: 6px solid #007AFF; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-traffic { background: #fff7f6; padding: 22px; margin: 15px 0; border-left: 6px solid #E63946; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-energy { background: #f2fbf6; padding: 22px; margin: 15px 0; border-left: 6px solid #2A9D8F; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-environment { background: #f0f7ff; padding: 22px; margin: 15px 0; border-left: 6px solid #264DE4; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-weather { background: #fffbe6; padding: 22px; margin: 15px 0; border-left: 6px solid #F4A261; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-reports { background: #f5f5f5; padding: 22px; margin: 15px 0; border-left: 6px solid #6A7581; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-settings { background: #f5f5f5; padding: 22px; margin: 15px 0; border-left: 6px solid #999; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-chat:hover, .card-traffic:hover, .card-energy:hover, .card-environment:hover, .card-weather:hover, .card-reports:hover, .card-settings:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        /* Chat bubbles */
+        .user-bubble, .bot-bubble { padding: 10px 15px; margin: 8px 0; border-radius: 12px; max-width: 70%; font-size: 14px; }
+        .user-bubble { background: #007AFF; color: white; align-self: flex-end; }
+        .bot-bubble { background: #ecf0f1; color: black; align-self: flex-start; }
+        
+        .footer { text-align: center; font-size: 14px; color: #6c757d; margin-top: 40px; padding: 20px; border-top: 1px solid #e9ecef; }
     </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
+# ========================================
+# 💾 SESSION STATE INITIALIZATION
+# ========================================
+
 if "profile_complete" not in st.session_state:
     st.session_state.profile_complete = False
 if "profile_data" not in st.session_state:
@@ -395,6 +364,10 @@ if "city_data" not in st.session_state:
 if "language" not in st.session_state:
     st.session_state.language = "en"
 
+# ========================================
+# 🔐 LOAD CREDENTIALS
+# ========================================
+
 # Load Watsonx credentials
 try:
     credentials = {
@@ -404,10 +377,18 @@ try:
     project_id = st.secrets["WATSONX_PROJECT_ID"]
 except KeyError as e:
     st.warning(f"⚠️ Missing Watsonx credential: {str(e)}")
+    st.info("Add credentials to `.streamlit/secrets.toml`")
     st.stop()
 except Exception as e:
     st.error(f"🚨 Error initializing LLM: {str(e)}")
     st.stop()
+
+# Load OpenWeather API Key
+try:
+    weather_api_key = st.secrets["OPENWEATHER_APIKEY"]
+except KeyError:
+    st.warning("⚠️ OpenWeather API key not found in secrets.toml")
+    weather_api_key = None  # Will trigger error messages in UI
 
 model_map = {
     "chat": "ibm/granite-3-3-8b-instruct",
@@ -432,7 +413,10 @@ def get_llm(model_name):
         },
     )
 
-# Function to export data as PDF including user profile
+# ========================================
+# 📄 PDF EXPORT FUNCTION
+# ========================================
+
 def export_city_report():
     pdf = FPDF()
     pdf.add_page()
@@ -440,26 +424,35 @@ def export_city_report():
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 10, txt="SmartCityAI - City Analysis Report", ln=True, align='C')
     pdf.ln(10)
+    
     if "profile_data" in st.session_state and st.session_state.profile_data:
         pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="User Information", ln=True)
         pdf.set_font("Arial", '', 12)
         for key, value in st.session_state.profile_data.items():
             pdf.cell(0, 10, txt=f"{key.capitalize()}: {value}", ln=True)
+    
     pdf.ln(10)
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, txt="Recent City Metrics", ln=True)
     pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 10, txt="Avg Traffic Delay: 12 mins", ln=True)
-    pdf.cell(0, 10, txt="Avg CO2 Level: 410 ppm", ln=True)
-    pdf.output("city_report.pdf")
-    return open("city_report.pdf", "rb").read()
+    pdf.cell(0, 10, txt=f"Avg Traffic Delay: {st.session_state.city_data.get('traffic_delay', 'N/A')} mins", ln=True)
+    pdf.cell(0, 10, txt=f"Avg CO2 Level: {st.session_state.city_data.get('co2_level', 'N/A')} ppm", ln=True)
+    pdf.cell(0, 10, txt=f"Energy Use: {st.session_state.city_data.get('energy_use', 'N/A')} kWh/day", ln=True)
+    pdf.cell(0, 10, txt=f"Waste Collected: {st.session_state.city_data.get('waste_ton', 'N/A')} tons", ln=True)
+    
+    pdf_output = pdf.output(dest='S').encode('latin-1')
+    return pdf_output
 
-# Navigation Bar
+# ========================================
+# 🧭 NAVIGATION BAR
+# ========================================
+
 def render_navbar():
     lang = st.session_state.language
     st.markdown('<div class="navbar">', unsafe_allow_html=True)
     col1, col2, col3, col4, col5, col6 = st.columns(6)
+    
     with col1:
         if st.button(LANGUAGES[lang]["chat"], key="btn_chat", use_container_width=True, disabled=not st.session_state.profile_complete):
             st.session_state.current_section = "chat"
@@ -478,15 +471,12 @@ def render_navbar():
     with col6:
         if st.button("🧾", key="btn_profile", use_container_width=True):
             st.session_state.current_section = "profile"
-    
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Header
-lang = st.session_state.language
-st.markdown(f'<h1 style="text-align:center;">{LANGUAGES[lang]["title"]}</h1>', unsafe_allow_html=True)
-st.markdown(f'<p style="text-align:center; font-size:16px;">{LANGUAGES[lang]["subtitle"]}</p>', unsafe_allow_html=True)
-render_navbar()
+# ========================================
+# 👤 PROFILE FUNCTIONS
+# ========================================
 
-# Functions
 def save_profile(name, role, department, location):
     st.session_state.profile_data = {
         "name": name,
@@ -506,55 +496,89 @@ def reset_profile():
     st.session_state.city_data = {}
     st.rerun()
 
-# ------------------------------ SETTINGS ------------------------------
+# ========================================
+# 🎨 HEADER & MAIN LAYOUT
+# ========================================
+
+lang = st.session_state.language
+st.markdown(f'<h1 style="text-align:center;">{LANGUAGES[lang]["title"]}</h1>', unsafe_allow_html=True)
+st.markdown(f'<p style="text-align:center; font-size:16px;">{LANGUAGES[lang]["subtitle"]}</p>', unsafe_allow_html=True)
+render_navbar()
+
+# ========================================
+# ⚙️ SETTINGS SECTION
+# ========================================
+
 if st.session_state.current_section == "settings":
     st.markdown('<div class="card-settings">', unsafe_allow_html=True)
     st.markdown(f'<h2>⚙️ {LANGUAGES[lang]["settings"]}</h2>', unsafe_allow_html=True)
-    language = st.selectbox("Language", options=["en", "es", "fr"], format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}[x])
+    
+    language = st.selectbox("Language", options=["en", "es", "fr"], 
+                           format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}[x])
     theme = st.selectbox("Theme", ["Light"])
     font_size = st.slider("Font Size", 12, 24)
+    
     if st.button(LANGUAGES[lang]["save_profile"]):
         st.session_state.language = language
         st.success("Preferences updated!")
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ USER PROFILE ------------------------------
+# ========================================
+# 👤 USER PROFILE SECTION
+# ========================================
+
 elif st.session_state.current_section == "profile":
     st.markdown('Unlock the full potential of our assistant to address your questions efficiently!!', unsafe_allow_html=True)
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<h2>🧾 Complete Your Profile</h2>', unsafe_allow_html=True)
+    
     name = st.text_input("Full Name")
     role = st.selectbox("Role", ["Mayor", "Engineer", "Planner", "Analyst"])
     department = st.text_input("Department")
     location = st.text_input("City / District")
+    
     if st.button("Save Profile"):
         if name and role and department and location:
             save_profile(name, role, department, location)
         else:
             st.error("❌ Please fill in all fields.")
+    
     if st.session_state.profile_complete:
         st.markdown('<br>', unsafe_allow_html=True)
         if st.button("🔄 Reset Profile"):
             reset_profile()
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# If profile not completed, show message only
+# ========================================
+# 🔒 PROFILE CHECK (BLOCKER)
+# ========================================
+
 elif not st.session_state.profile_complete:
     st.info("ℹ️ Please complete your profile before continuing.", icon="🪪")
     if st.button("Go to Profile"):
         st.session_state.current_section = "profile"
     st.stop()
 
-# ------------------------------ CHATBOT ------------------------------
+# ========================================
+# 🤖 CHATBOT SECTION
+# ========================================
+
 elif st.session_state.current_section == "chat":
     st.markdown('<div class="card-chat">', unsafe_allow_html=True)
     st.markdown('<h2>🤖 AI Chatbot</h2>', unsafe_allow_html=True)
+    
     for role, content in st.session_state.messages:
         bubble_class = "user-bubble" if role == "user" else "bot-bubble"
         st.markdown(f'<div class="{bubble_class}"><b>{role.capitalize()}:</b> {content}</div>', unsafe_allow_html=True)
+    
     with st.form(key='chat_form', clear_on_submit=True):
         user_input = st.text_input("Your question:", placeholder="Type something like 'What's the traffic today?'...")
         submit_button = st.form_submit_button(label="Send")
+    
     if submit_button and user_input:
         st.session_state.messages.append(("user", user_input))
         with st.spinner("Thinking..."):
@@ -566,114 +590,164 @@ elif st.session_state.current_section == "chat":
             except Exception as e:
                 st.session_state.messages.append(("assistant", f"Error: {str(e)}"))
                 st.rerun()
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ TRAFFIC MONITOR ------------------------------
+# ========================================
+# 🚦 TRAFFIC MONITOR SECTION
+# ========================================
+
 elif st.session_state.current_section == "traffic":
     st.markdown('<div class="card-traffic">', unsafe_allow_html=True)
     st.markdown('<h2>🚦 Traffic Monitor</h2>', unsafe_allow_html=True)
+    
     query = st.text_area("Describe your traffic-related issue or question:")
     if st.button("Get Advice"):
         llm = get_llm("traffic")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ ENERGY TRACKER ------------------------------
+# ========================================
+# ⚡ ENERGY TRACKER SECTION
+# ========================================
+
 elif st.session_state.current_section == "energy":
     st.markdown('<div class="card-energy">', unsafe_allow_html=True)
     st.markdown('<h2>⚡ Energy Tracker</h2>', unsafe_allow_html=True)
+    
     query = st.text_input("Ask about power usage or grid issues:")
     if st.button("Get Suggestions"):
         llm = get_llm("energy")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ ENVIRONMENT ANALYSIS ------------------------------
+# ========================================
+# 🌍 ENVIRONMENT ANALYSIS SECTION
+# ========================================
+
 elif st.session_state.current_section == "environment":
     st.markdown('<div class="card-environment">', unsafe_allow_html=True)
     st.markdown('<h2>🌍 Environmental Insights</h2>', unsafe_allow_html=True)
+    
     query = st.text_area("Ask about pollution, air quality, or sustainability:")
     if st.button("Get Insight"):
         llm = get_llm("environment")
         res = llm.invoke(query)
         st.markdown(f'<div class="bot-bubble">{res}</div>', unsafe_allow_html=True)
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ WEATHER DASHBOARD ------------------------------
+# ========================================
+# 🌦️ WEATHER DASHBOARD (FULLY UPDATED)
+# ========================================
+
 elif st.session_state.current_section == "weather":
     st.markdown('<div class="card-weather">', unsafe_allow_html=True)
     st.markdown('<h2>🌦️ Weather Forecast</h2>', unsafe_allow_html=True)
 
-    city = st.text_input("Enter City Name")
-    try:
-        weather_api_key = st.secrets["OPENWEATHER_APIKEY"]
-    except KeyError:
-        st.error("🚨 OpenWeatherMap API key missing in secrets.toml")
+    # API Key Check
+    if not weather_api_key:
+        st.error("🚨 OpenWeatherMap API key missing! Add `OPENWEATHER_APIKEY` to `.streamlit/secrets.toml`")
+        st.code('OPENWEATHER_APIKEY = "your_32_char_key_here"')
+        st.info("Get your free key: https://home.openweathermap.org/api_keys")
         st.stop()
 
-    if st.button("Get Current Weather"):
-        if city:
-            try:
-                data = get_weather_data(city, weather_api_key)
-                if data.get("cod") != 200:
-                    st.error("❌ Unable to fetch weather data. Check city name or API key.")
-                else:
-                    current_temp = data["main"]["temp"] - 273.15
-                    feels_like = data["main"]["feels_like"] - 273.15
-                    humidity = data["main"]["humidity"]
-                    wind_speed = data["wind"]["speed"]
-                    desc = data["weather"][0]["description"]
-
-                    st.markdown(f"""
-                        **City:** {data['name']}  
-                        **Temperature:** {current_temp:.1f}°C  
-                        **Feels Like:** {feels_like:.1f}°C  
-                        **Humidity:** {humidity}%  
-                        **Wind Speed:** {wind_speed} m/s  
-                        **Description:** {desc.capitalize()}
-                    """)
-            except Exception as e:
-                st.error(f"🚨 Error fetching weather: {str(e)}")
+    city = st.text_input("🏙️ Enter City Name", placeholder="e.g., London, Tokyo, New York, Paris,FR")
+    
+    # API Key Test Button
+    if st.button("🔑 Test API Key"):
+        test_data = get_weather_data("London", weather_api_key)
+        if "error" in test_data:
+            st.error(test_data["error"])
+            st.info("💡 Tips:\n- New keys take ~2 hours to activate\n- Verify your email in OpenWeather dashboard\n- Check subscription limits")
         else:
-            st.warning("Please enter a city name.")
+            st.success("✅ API key is working! Try fetching weather below.")
 
-    if st.button("Get Weekly Forecast"):
-        if city:
-            try:
-                data = get_weather_data(city, weather_api_key)
-                if data.get("cod") != 200:
-                    st.error("❌ Unable to fetch weather data. Check city name or API key.")
-                else:
-                    lat = data["coord"]["lat"]
-                    lon = data["coord"]["lon"]
-                    forecast_data = get_weekly_forecast(weather_api_key, lat, lon)
-                    summary = generate_forecast_summary1(forecast_data, st.secrets["WATSONX_APIKEY"])
-                    st.markdown("🧠 **AI Summary:**")
-                    st.markdown(summary)
-                    plot_forecast_chart(forecast_data)
-            except Exception as e:
-                st.error(f"🚨 Error fetching weekly forecast: {str(e)}")
-        else:
-            st.warning("Please enter a city name.")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🌡️ Current Weather", use_container_width=True):
+            if city:
+                with st.spinner("Fetching weather..."):
+                    data = get_weather_data(city, weather_api_key)
+                    if "error" in data:
+                        st.error(data["error"])
+                        st.info("💡 Try: 'City,Country' format (e.g., 'Paris,FR') or check spelling")
+                    else:
+                        st.markdown(f"""
+                            ### {data['name']}, {data['sys']['country']}
+                            **🌡️ Temperature:** {data['main']['temp']}°C  
+                            **🤔 Feels Like:** {data['main']['feels_like']}°C  
+                            **💧 Humidity:** {data['main']['humidity']}%  
+                            **💨 Wind:** {data['wind']['speed']} m/s  
+                            **☁️ Conditions:** {data['weather'][0]['description'].title()}
+                        """)
+            else:
+                st.warning("Please enter a city name first.")
+    
+    with col2:
+        if st.button("📅 Weekly Forecast", use_container_width=True):
+            if city:
+                with st.spinner("Fetching forecast..."):
+                    current = get_weather_data(city, weather_api_key)
+                    if "error" in current:
+                        st.error(current["error"])
+                    else:
+                        lat, lon = current["coord"]["lat"], current["coord"]["lon"]
+                        forecast = get_weekly_forecast(weather_api_key, lat, lon)
+                        
+                        if "error" in forecast:
+                            st.error(forecast["error"])
+                        else:
+                            display_weekly_forecast(forecast)
+                            plot_forecast_chart(forecast)
+            else:
+                st.warning("Please enter a city name first.")
+    
+    with col3:
+        if st.button("🌫️ Air Quality", use_container_width=True):
+            if city:
+                with st.spinner("Fetching air quality..."):
+                    current = get_weather_data(city, weather_api_key)
+                    if "error" in current:
+                        st.error(current["error"])
+                    else:
+                        lat, lon = current["coord"]["lat"], current["coord"]["lon"]
+                        aqi_data = get_air_pollution_data(lat, lon, weather_api_key)
+                        
+                        if "error" in aqi_data:
+                            st.error(aqi_data["error"])
+                        else:
+                            display_air_pollution(aqi_data)
+            else:
+                st.warning("Please enter a city name first.")
 
-    if st.button("Get Air Quality"):
-        if city:
-            try:
-                data = get_weather_data(city, weather_api_key)
-                lat = data["coord"]["lat"]
-                lon = data["coord"]["lon"]
-                aqi_data = get_air_pollution_data(lat, lon, weather_api_key)
-                display_air_pollution(aqi_data)
-            except Exception as e:
-                st.error(f"🚨 Error fetching air quality: {str(e)}")
-        else:
-            st.warning("Please enter a city name.")
+    # Helpful Info Box
+    with st.expander("ℹ️ OpenWeather API Tips"):
+        st.markdown("""
+        - 🔑 New API keys take **up to 2 hours** to activate
+        - ✅ Verify your email in [OpenWeather dashboard](https://home.openweathermap.org)
+        - 🌍 Use format: `"City,Country"` for better results (e.g., `"Paris,FR"`)
+        - 📊 Free tier: **60 calls/minute**, **1,000,000 calls/month**
+        - 🌐 All endpoints use `https://` and `appid=` parameter
+        - 🔄 This app caches requests for 5 minutes to avoid rate limits
+        """)
 
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------------------ PROGRESS REPORTS ------------------------------
+# ========================================
+# 📊 PROGRESS REPORTS SECTION
+# ========================================
+
 elif st.session_state.current_section == "reports":
     st.markdown('<div class="card-reports">', unsafe_allow_html=True)
     st.markdown(f'<h2>📊 {LANGUAGES[lang]["reports"]}</h2>', unsafe_allow_html=True)
@@ -703,11 +777,25 @@ elif st.session_state.current_section == "reports":
             file_name="city_report.pdf",
             mime="application/pdf"
         )
+    
     st.markdown('Grateful for your time—our assistant is here to help anytime you need!!')
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Footer
-st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
+# ========================================
+# 🔧 DEBUG MODE (OPTIONAL)
+# ========================================
 
-# Debug Mode
 with st.expander("🔧 Debug Mode"):
-    st.write("Session State:", st.session_state)
+    st.write("Session State Keys:", list(st.session_state.keys()))
+    if weather_api_key:
+        st.write("✅ OpenWeather API Key: Loaded")
+    else:
+        st.write("❌ OpenWeather API Key: Missing")
+    st.write("Profile Complete:", st.session_state.profile_complete)
+    st.write("Current Section:", st.session_state.current_section)
+
+# ========================================
+# 🦶 FOOTER
+# ========================================
+
+st.markdown(f'<p class="footer">{LANGUAGES[lang]["footer"]}</p>', unsafe_allow_html=True)
